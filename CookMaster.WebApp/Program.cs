@@ -1,19 +1,22 @@
+using CookMaster.Interfaces;
+using CookMaster.Services;
+using CookMaster.Services.Factories;
+using CookMaster.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using NLog.Web;
-using NLog;
-using System;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
+using NLog;
 using NLog.Extensions.Logging;
-using CookMaster.Interfaces;
-using CookMaster.Services.Factories;
-using Microsoft.Extensions.Configuration;
+using NLog.Web;
+using System;
+using System.Text.Json.Serialization;
+using static Dapper.SqlMapper;
 
 
 public class Program
@@ -43,6 +46,15 @@ public class Program
         builder.Logging.AddNLog();
         // Respect AppSetting.json Logging section
         builder.Host.UseNLog(new NLogAspNetCoreOptions() { RemoveLoggerFactoryFilter = false });
+
+        var settingsSection = builder.Configuration.GetSection("AppConfig");
+
+        if (!settingsSection.Exists())
+            throw new Exception("Missing AppConfig");
+
+        var appConfig = settingsSection.Get<AppConfig>();
+
+        builder.Services.AddSingleton(appConfig);
 
         builder.Services.AddHealthChecks();
         // Add services to the container.
@@ -80,6 +92,8 @@ public class Program
             var connStr = builder.Configuration.GetConnectionString("CookMaster");
             return new StorageFactory(connStr, context.GetService<ILoggerFactory>());
         });
+        builder.Services.AddSingleton<ISpoonacularClientFactory, SpoonacularClientFactory>();
+        builder.Services.AddSingleton<ISpoonacularService, SpoonacularService>();
 
         #endregion
 

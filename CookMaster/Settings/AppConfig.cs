@@ -9,5 +9,7 @@ namespace CookMaster.Settings
     // TODO: Load settings from appsettings.json
     public class AppConfig
     {
+        public string ApplicationURL { get; set; }
+        public SpoonacularClientSettings Spoonacular {  get; set; }
     }
 }
