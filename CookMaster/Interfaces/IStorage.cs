@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CookMaster.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -15,6 +16,10 @@ namespace CookMaster.Interfaces
 
 
         Task<bool> DatabaseExistsAsync(IDbConnection conn);
+
+        #region Recipe
+        Task AddRecipe(IDbConnection conn, Recipe recipe);
+        #endregion
 
     }
 }

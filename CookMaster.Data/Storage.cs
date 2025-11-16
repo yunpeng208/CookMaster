@@ -1,4 +1,5 @@
 ﻿using CookMaster.Interfaces;
+using CookMaster.Models;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -65,6 +67,38 @@ namespace CookMaster.Data
             return exists;
         }
 
+        #region Recipe
+        public async Task AddRecipe(IDbConnection conn, Recipe recipe)
+        {
+            var affectedRows = await AddRecordAsync(conn, recipe);
+
+            if (affectedRows <= 0)
+                throw new Exception("Failed to Add Recipe");
+
+
+            foreach (var ingredientItem in recipe.UsedIngredients)
+            {
+                // TODO: Need to check if ingredientItem alrady exists. We need to add a unique constraint on the name
+                ingredientItem.ID = Guid.NewGuid();
+                var affectedRows2 = await AddRecordAsync(conn, ingredientItem);
+
+                if (affectedRows2 <= 0)
+                    throw new Exception("Failed to Add IngredientItem");
+
+                var affectedRows3 = await AddRecordAsync(conn, new RecipesUsedIngredient()
+                {
+                    RecipeID = recipe.ID,
+                    IngredientItemID = ingredientItem.ID,
+                });
+
+                if (affectedRows2 <= 0)
+                    throw new Exception("Failed to Add RecipesUsedIngredient");
+            }
+
+        }
+        #endregion
+
+
 
         #region Helpers
         /// <summary>
@@ -95,6 +129,118 @@ namespace CookMaster.Data
 
             return $"{Q(schemaName)}.{Q(name)}";
         }
+
+
+        #region  Reflection helpers
+        private sealed class PropertyDetails
+        {
+            public PropertyInfo PropertyInfo { get; set; }
+            public string Name { get; set; }
+            public string SqlParamName { get; set; }
+            public bool IsPrimaryKey { get; set; }
+        }
+
+        private List<PropertyDetails> GetDbProperties<T>()
+        {
+            var type = typeof(T);
+            var list = new List<PropertyDetails>();
+
+            foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (p.GetCustomAttribute<NotStoredInDBAttribute>() != null)
+                    continue;
+
+                var isPk = p.GetCustomAttribute<PKAttribute>() != null
+                           || string.Equals(p.Name, "ID", StringComparison.Ordinal);
+
+                list.Add(new PropertyDetails
+                {
+                    PropertyInfo = p,
+                    Name = p.Name,
+                    SqlParamName = "@" + p.Name,
+                    IsPrimaryKey = isPk
+                });
+            }
+
+            if (!list.Any(x => x.IsPrimaryKey))
+                throw new Exception($"Failed to find Primary Key for {type.Name}");
+
+            return list;
+        }
+
+        private List<string> GetDbPropertyNames<T>(bool skipPk = false)
+        {
+            var props = GetDbProperties<T>();
+            if (skipPk) 
+                props = props.Where(p => !p.IsPrimaryKey).ToList();
+
+            return props.Select(p => p.Name).ToList();
+        }
+
+        private PropertyDetails GetPK<T>()
+        {
+            var props = GetDbProperties<T>();
+            return props.FirstOrDefault(p => p.IsPrimaryKey);
+        }
+        #endregion
+
+
+        private async Task<int> AddRecordAsync<T>(IDbConnection ctx, T record, bool allowConflict = false)
+        {
+            var cols = GetDbPropertyNames<T>();
+            var table = TableName<T>();
+            var colList = string.Join(", ", cols.Select(Q));
+            var valList = string.Join(", ", cols.Select(c => "@" + c));
+            var sql = $@"INSERT INTO {table} ({colList}) VALUES ({valList})";
+            if (allowConflict)
+            {
+                var pk = GetPK<T>();
+                sql += $" ON CONFLICT (\"{pk.Name}\") DO NOTHING";
+            }
+            return await ctx.ExecuteAsync(sql, record);
+        }
+
+        internal sealed class FilterBy
+        {
+            public string PropertyName { get; set; }
+            public object PropertyValue { get; set; }
+        }
+
+        private async Task<List<T>> GetRecordsAsync<T>(IDbConnection ctx, List<FilterBy> filters = null)
+        {
+            var cols = GetDbPropertyNames<T>();
+            var table = TableName<T>();
+            var colList = string.Join(", ", cols.Select(Q));
+            var sql = new StringBuilder();
+
+            var parameter = new DynamicParameters();
+
+            sql.AppendLine($@"
+SELECT {cols}
+FROM {table}
+");
+
+            if (filters != null && filters.Any())
+            {
+                var conition = "WHERE";
+                foreach (var filter in filters)
+                {
+                    sql.AppendLine(conition);
+
+                    conition = "AND";
+
+                    sql.AppendLine($"{filter.PropertyName}=@{filter.PropertyName}");
+
+                    parameter.Add($"@{filter.PropertyName}", filter.PropertyValue);
+
+                }
+            }
+           
+            var rows = await ctx.QueryAsync<T>(sql.ToString(), parameter);
+
+            return rows.ToList();
+        }
+
         #endregion
     }
 }
