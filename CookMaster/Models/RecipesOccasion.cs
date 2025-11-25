@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CookMaster.Models
 {
-    public class NutritionProperty
+    public class RecipesOccasion
     {
-        public string Name { get; set; }
-        public double Amount { get; set; }
-        public string Unit { get; set; }
+        [PK]
+        public int RecipeID { get; set; }
+        public string Occasion { get; set; }
     }
 }

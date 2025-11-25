@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {RecipesSearch} from './core/recipes-search/recipes-search';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RecipesSearch],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('CookMaster.WebApp');
+  protected readonly title = signal('CookMaster');
 }

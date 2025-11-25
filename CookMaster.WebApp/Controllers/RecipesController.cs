@@ -24,7 +24,7 @@ namespace CookMaster.WebApp
         }
 
         [HttpGet, Route("RecipesByIngredients")]
-        public async Task<ActionResult<ListResponse<Recipe>>> RecipesByIngredients()
+        public async Task<ActionResult<ListResponse<RecipeSearchResult>>> RecipesByIngredients()
         {
             // Build Dictionary<string, string> from the query string (first value per key)
             var queryPrams = Request.Query.ToDictionary(
@@ -36,10 +36,18 @@ namespace CookMaster.WebApp
             return HandleResponse(response);
         }
 
-        [HttpGet, Route("{RecipeID}/GetRecipesNutritions")]
-        public async Task<ActionResult<ListResponse<NutritionInfo>>> GetRecipesNutritions(long RecipeID)
+        [HttpGet, Route("{RecipeID}/Nutritions")]
+        public async Task<ActionResult<SingletonResponse<NutritionInfo>>> GetRecipeNutritions(int RecipeID)
         {
-            var response = await spoonacularService.GetRecipesNutritions(RecipeID);
+            var response = await spoonacularService.GetRecipeNutritions(RecipeID);
+
+            return HandleResponse(response);
+        }
+
+        [HttpGet, Route("{RecipeID}/information")]
+        public async Task<ActionResult<SingletonResponse<Recipe>>> GetRecipeInformation(int RecipeID)
+        {
+            var response = await spoonacularService.GetRecipesnformation(RecipeID);
 
             return HandleResponse(response);
         }

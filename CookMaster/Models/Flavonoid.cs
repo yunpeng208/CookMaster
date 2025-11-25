@@ -8,9 +8,11 @@ namespace CookMaster.Models
 {
     public class Flavonoid
     {
+        [PK]
+        public Guid ID { get; set; }
+        public int RecipeID { get; set; }
         public string Name { get; set; }
         public double Amount { get; set; }
         public string Unit { get; set; }
     }
-
 }

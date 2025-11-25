@@ -1,0 +1,92 @@
+@if (selectedRecipe) {
+  <button type="button" (click)="backToSearch()">← Back to Results</button>
+
+  @if (isLoading) {
+    <p>Loading recipe details...</p>
+  } @else {
+    <app-recipe-details [recipe]="selectedRecipe"></app-recipe-details>
+  }
+} @else {
+  <div class="search-container">
+    <h1>Find Recipes by Ingredients</h1>
+
+    <form (ngSubmit)="onSearch()" class="search-form">
+      <label for="ingredients">Ingredients (comma separated):</label>
+      <input
+        id="ingredients"
+        type="text"
+        [(ngModel)]="ingredients"
+        name="ingredients"
+        placeholder="e.g. apples, flour, sugar" />
+
+      <button type="submit">Search</button>
+    </form>
+
+    @if(isLoading) {
+      <div class="status">Searching recipes...</div>
+    }
+    @if(errorMessage) {
+      <div class="status error">{{ errorMessage }}</div>
+    }
+
+    @if (!isLoading && recipes.length > 0) {
+      <div class="results">
+        <h2>Results</h2>
+
+        @for (recipe of recipes; track recipe.ID) {
+          <div class="recipe-card" (click)="showDetails(recipe.ID)">
+            <div class="thumb">
+              @if (recipe.Image) {
+                <img [src]="recipe.Image" [alt]="recipe.Title" />
+              }
+            </div>
+            <div class="details">
+              <h3>{{ recipe.Title }}</h3>
+              <p><strong>Likes:</strong> {{ recipe.Title }}</p>
+              <div class="ingredients">
+                @if (recipe.UsedIngredients && recipe.UsedIngredients.length > 0) {
+                  <p>
+                    <strong>Used ingredients:</strong>
+                    @for (ing of recipe.UsedIngredients; track ing.ID; let last = $last) {
+                      <span>
+                    {{ ing.Original }}
+                        @if(!last) {
+                          <span>, </span>
+                        }
+                    </span>
+                    }
+
+                  </p>
+                }
+                @if (recipe.MissedIngredients && recipe.MissedIngredients.length > 0) {
+                  <p>
+                    <strong>Missing:</strong>
+                    @for (ing of recipe.MissedIngredients; track ing.ID; let last = $last) {
+                      <span>
+                    {{ ing.Original }}
+                        @if(!last) {
+                          <span>, </span>
+                        }
+                    </span>
+                    }
+
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+
+    @if (!isLoading && !recipes.length && !errorMessage) {
+      <div>
+        <p>Type ingredients above and search to see recipes.</p>
+      </div>
+    }
+
+  </div>
+}
+
+

@@ -1,0 +1,110 @@
+<div class="details-container">
+
+  @if (!recipe) {
+    <p>No recipe selected.</p>
+  } @else {
+
+    <h1>{{ recipe.Title }}</h1>
+
+    @if (recipe.Image) {
+      <img
+        [src]="recipe.Image"
+        [alt]="recipe.Title"
+        class="recipe-image"
+      />
+    }
+
+    @if (recipe.Summary) {
+      <h2>Summary</h2>
+      <p [innerHTML]="recipe.Summary"></p>
+    }
+
+    <div class="meta">
+      @if (recipe.ReadyInMinutes) {
+        <span>⏱ {{ recipe.ReadyInMinutes }} minutes</span>
+      }
+      @if (recipe.Servings) {
+        <span>🍽 Servings: {{ recipe.Servings }}</span>
+      }
+      @if (recipe.Likes) {
+        <span>💖 Likes: {{ recipe.Likes }}</span>
+      }
+    </div>
+
+    @if (recipe.ExtendedIngredients?.length) {
+      <h2>Ingredients</h2>
+      <ul>
+        @for (ing of recipe.ExtendedIngredients; track ing.ID) {
+          <li>{{ ing.Original || ing.Name }}</li>
+        }
+      </ul>
+    }
+
+    @if (recipe.AnalyzedInstructions?.length) {
+      <h2>Instructions</h2>
+      @for (instr of recipe.AnalyzedInstructions; track instr.Name) {
+        @if (instr.Name) {
+          <h3>{{ instr.Name }}</h3>
+        }
+        <ol>
+          @for (step of instr.Steps; track step.ID) {
+            <li>
+              <strong>{{ step.Number }}.</strong> {{ step.Step }}
+            </li>
+          }
+        </ol>
+      }
+    }
+
+
+
+    @if (isLoadingNutrition) {
+      <p>Loading nutrition...</p>
+    } @else if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    } @else if (nutrition) {
+      <h2>Nutrition</h2>
+      <p>
+        <strong>Calories:</strong> {{ nutrition.Calories }} |
+        <strong>Carbs:</strong> {{ nutrition.Carbs }} |
+        <strong>Fat:</strong> {{ nutrition.Fat }} |
+        <strong>Protein:</strong> {{ nutrition.Protein }}
+      </p>
+
+      @if (nutrition.CaloricBreakdown) {
+        <p>
+          <strong>Caloric breakdown:</strong>
+          Protein {{ nutrition.CaloricBreakdown.PercentProtein | number:'1.0-1' }}%,
+          Fat {{ nutrition.CaloricBreakdown.PercentFat | number:'1.0-1' }}%,
+          Carbs {{ nutrition.CaloricBreakdown.PercentCarbs | number:'1.0-1' }}%
+        </p>
+      }
+
+      @if (nutrition.Good?.length) {
+        <h3>Good</h3>
+        <ul>
+          @for (g of nutrition.Good; track g.ID) {
+            <li>
+              {{ g.Title }} - {{ g.Amount }}
+              ({{ g.PercentOfDailyNeeds | number:'1.0-1' }}% DV)
+            </li>
+          }
+        </ul>
+      }
+
+      @if (nutrition.Bad?.length) {
+        <h3>Bad</h3>
+        <ul>
+          @for (b of nutrition.Bad; track b.ID) {
+            <li>
+              {{ b.Title }} - {{ b.Amount }}
+              ({{ b.PercentOfDailyNeeds | number:'1.0-1' }}% DV)
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <button type="button" (click)="loadNutrition()">Load nutrition</button>
+    }
+  }
+</div>

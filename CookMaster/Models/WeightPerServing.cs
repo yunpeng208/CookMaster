@@ -8,6 +8,8 @@ namespace CookMaster.Models
 {
     public class WeightPerServing
     {
+        [PK]
+        public int RecipeID { get; set; }
         public double Amount { get; set; }
         public string Unit { get; set; }
     }

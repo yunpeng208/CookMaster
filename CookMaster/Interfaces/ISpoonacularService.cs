@@ -10,7 +10,8 @@ namespace CookMaster.Interfaces
 {
     public interface ISpoonacularService
     {
-        Task<ListResponse<Recipe>> RecipesByIngredients(Dictionary<string, string> queryPrams);
-        Task<ListResponse<NutritionInfo>> GetRecipesNutritions(long recipeID);
+        Task<ListResponse<RecipeSearchResult>> RecipesByIngredients(Dictionary<string, string> queryPrams);
+        Task<SingletonResponse<NutritionInfo>> GetRecipeNutritions(int recipeID);
+        Task<SingletonResponse<Recipe>> GetRecipesnformation(int recipeID);
     }
 }

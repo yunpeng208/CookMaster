@@ -23,205 +23,53 @@ namespace CookMaster.Services
             this.storageFactory = storageFactory;
         }
 
-        public async Task<ListResponse<Recipe>> RecipesByIngredients(Dictionary<string, string> queryPrams)
+        public async Task<ListResponse<RecipeSearchResult>> RecipesByIngredients(Dictionary<string, string> queryPrams)
         {
             try
             {
                 if (queryPrams == null || !queryPrams.Any())
                     throw new ArgumentNullException(nameof(queryPrams));
 
-
-                var client = spoonacularClientFactory.GetClient();
-
-#if DEBUG
-                // Only in debug mode. Since we have limited number of API calls we can make to Spoonacular
-                // TODO: Will remove this after I get the insert and loading from DB working
-                var r = @"
-{
-    ""Objects"": [
-        {
-            ""ID"": 640352,
-            ""Image"": ""https://img.spoonacular.com/recipes/640352-312x231.jpg"",
-            ""ImageType"": ""jpg"",
-            ""Likes"": 11,
-            ""MissedIngredientCount"": 3,
-            ""MissedIngredients"": [
-                {
-                    ""Aisle"": ""Produce"",
-                    ""Amount"": 2,
-                    ""ExtendedName"": ""fresh cranberries"",
-                    ""Id"": 9078,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/cranberries.jpg"",
-                    ""Meta"": [
-                        ""fresh""
-                    ],
-                    ""Name"": ""cranberries"",
-                    ""Original"": ""2 cups fresh cranberries"",
-                    ""OriginalName"": ""fresh cranberries"",
-                    ""Unit"": ""cups"",
-                    ""UnitLong"": ""cups"",
-                    ""UnitShort"": ""cup""
-                },
-                {
-                    ""Aisle"": ""Milk, Eggs, Other Dairy"",
-                    ""Amount"": 4,
-                    ""ExtendedName"": ""unsalted butter"",
-                    ""Id"": 1145,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/butter-sliced.jpg"",
-                    ""Meta"": [
-                        ""unsalted"",
-                        ""cut into cubes""
-                    ],
-                    ""Name"": ""butter"",
-                    ""Original"": ""1/2 stick (4 Tbs) unsalted butter, cut into cubes"",
-                    ""OriginalName"": ""1/2 stick unsalted butter, cut into cubes"",
-                    ""Unit"": ""Tbs"",
-                    ""UnitLong"": ""Tbs"",
-                    ""UnitShort"": ""Tbsp""
-                },
-                {
-                    ""Aisle"": ""Cereal"",
-                    ""Amount"": 1.5,
-                    ""Id"": 8120,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/rolled-oats.jpg"",
-                    ""Meta"": [
-                        ""(not quick-cooking)""
-                    ],
-                    ""Name"": ""regular oats"",
-                    ""Original"": ""1 1/2 cups regular oats (not quick-cooking)"",
-                    ""OriginalName"": ""regular oats (not quick-cooking)"",
-                    ""Unit"": ""cups"",
-                    ""UnitLong"": ""cups"",
-                    ""UnitShort"": ""cup""
-                }
-            ],
-            ""Title"": ""Cranberry Apple Crisp"",
-            ""UnusedIngredients"": [],
-            ""UsedIngredientCount"": 1,
-            ""UsedIngredients"": [
-                {
-                    ""Aisle"": ""Produce"",
-                    ""Amount"": 4,
-                    ""Id"": 1089003,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/grannysmith-apple.png"",
-                    ""Meta"": [
-                        ""chopped""
-                    ],
-                    ""Name"": ""granny smith apples"",
-                    ""Original"": ""4 cups Granny Smith apples, chopped into ½ inch chunks"",
-                    ""OriginalName"": ""Granny Smith apples, chopped into ½ inch chunks"",
-                    ""Unit"": ""cups"",
-                    ""UnitLong"": ""cups"",
-                    ""UnitShort"": ""cup""
-                }
-            ]
-        },
-        {
-            ""ID"": 641803,
-            ""Image"": ""https://img.spoonacular.com/recipes/641803-312x231.jpg"",
-            ""ImageType"": ""jpg"",
-            ""Likes"": 1,
-            ""MissedIngredientCount"": 3,
-            ""MissedIngredients"": [
-                {
-                    ""Aisle"": ""Milk, Eggs, Other Dairy"",
-                    ""Amount"": 0.75,
-                    ""Id"": 1001,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/butter-sliced.jpg"",
-                    ""Meta"": [],
-                    ""Name"": ""butter"",
-                    ""Original"": ""3/4 stick of butter"",
-                    ""OriginalName"": ""butter"",
-                    ""Unit"": ""stick"",
-                    ""UnitLong"": ""sticks"",
-                    ""UnitShort"": ""stick""
-                },
-                {
-                    ""Aisle"": ""Spices and Seasonings"",
-                    ""Amount"": 1,
-                    ""Id"": 2011,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/cloves.jpg"",
-                    ""Meta"": [],
-                    ""Name"": ""ground cloves"",
-                    ""Original"": ""Dash of ground cloves"",
-                    ""OriginalName"": ""ground cloves"",
-                    ""Unit"": ""Dash"",
-                    ""UnitLong"": ""Dash"",
-                    ""UnitShort"": ""Dash""
-                },
-                {
-                    ""Aisle"": ""Produce"",
-                    ""Amount"": 1,
-                    ""Id"": 9156,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/zest-lemon.jpg"",
-                    ""Meta"": [],
-                    ""Name"": ""lemon zest"",
-                    ""Original"": ""1 Zest of lemon"",
-                    ""OriginalName"": ""Zest of lemon"",
-                    ""Unit"": """",
-                    ""UnitLong"": """",
-                    ""UnitShort"": """"
-                }
-            ],
-            ""Title"": ""Easy & Delish! ~ Apple Crumble"",
-            ""UnusedIngredients"": [],
-            ""UsedIngredientCount"": 1,
-            ""UsedIngredients"": [
-                {
-                    ""Aisle"": ""Produce"",
-                    ""Amount"": 3,
-                    ""Id"": 9003,
-                    ""Image"": ""https://img.spoonacular.com/ingredients_100x100/apple.jpg"",
-                    ""Meta"": [
-                        ""sliced""
-                    ],
-                    ""Name"": ""apples"",
-                    ""Original"": ""3 apples – sliced"",
-                    ""OriginalName"": ""apples – sliced"",
-                    ""Unit"": """",
-                    ""UnitLong"": """",
-                    ""UnitShort"": """"
-                }
-            ]
-        }
-    ],
-    ""Success"": true
-}
-
-";
-
-                var response = JsonSerializer.Deserialize<ListResponse<Recipe>>(r);
-#else
-                var response = await client.SearchRecipesByIngredients(queryPrams);
-#endif
-                if (!response.Success)
-                    throw new Exception(response.Message);
+                var ingredients = queryPrams.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).Select(kv => kv.Value.Split(",")).SelectMany(x => x).ToList();
 
                 var storage = storageFactory.GetStorage();
 
-                // Use transaction so we Rollback everything if we could not add a record. we don't want to come up with a broken record in a DB
-                // Maybe we get a connection per recipe??
+                using(var conn = storage.OpenConnection())
+                {
+                    var respies = await storage.GetRecipesByIngredients(conn, ingredients);
+
+                    if (respies.Count >= 2)
+                    {
+                        return new ListResponse<RecipeSearchResult>()
+                        {
+                            Success = true,
+                            Objects = respies
+                        };
+                    }
+                }
+
+
+                var client = spoonacularClientFactory.GetClient();
+                var response = await client.SearchRecipesByIngredients(queryPrams);
+
+                if (!response.Success)
+                    throw new Exception(response.Message);
+
                 using (var conn = storage.OpenConnection())
                 using (var transaction = conn.BeginTransaction())
                 {
                     try
                     {
-                        foreach (var recipe in response.Objects)
-                        {
-                            await storage.AddRecipe(conn, recipe);
-                        }
-
+                        await storage.CacheRecipes(conn, response.Objects);
                         transaction.Commit();
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Error during saving Recipes in database");
+                        logger.LogError(ex, $"Error during cachin Recipes");
                         transaction.Rollback();
                     }
-                    
-                }
 
-              
+                }
 
 
                 return response;
@@ -230,33 +78,113 @@ namespace CookMaster.Services
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error during SearchRecipesByIngredients");
-                return new ListResponse<Recipe>()
+                return new ListResponse<RecipeSearchResult>()
                 {
                     Message = ex.Message,
                 };
             }
         }
 
-        public async Task<ListResponse<NutritionInfo>> GetRecipesNutritions(long recipeID)
+        public async Task<SingletonResponse<NutritionInfo>> GetRecipeNutritions(int recipeID)
         {
             try
             {
+                var storage = storageFactory.GetStorage();
+
+                using (var conn = storage.OpenConnection())
+                {
+                    var nutritionInfo = await storage.GetRecipeNutritions(conn, recipeID);
+                    if (nutritionInfo != null)
+                        return new SingletonResponse<NutritionInfo>()
+                        {
+                            Success = true,
+                            Object = nutritionInfo
+                        };
+                }
 
                 var client = spoonacularClientFactory.GetClient();
 
-                var response = await client.NutritionsByID(recipeID);
+                var response = await client.GetRecipeNutritions(recipeID);
 
                 if (!response.Success)
                     throw new Exception(response.Message);
 
+                using (var conn = storage.OpenConnection())
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        await storage.SaveRecipeNutritions(conn, response.Object);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Error during saving Recipe {recipeID} NutritionInfo");
+                        transaction.Rollback();
+                    }
+
+                }
 
                 return response;
 
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error during NutritionsByID");
-                return new ListResponse<NutritionInfo>()
+                logger.LogError(ex, "Error during Get Recipe NutritionInfo");
+                return new SingletonResponse<NutritionInfo>()
+                {
+                    Message = ex.Message,
+                };
+            }
+        }
+
+        public async Task<SingletonResponse<Recipe>> GetRecipesnformation(int recipeID)
+        {
+            try
+            {
+                var storage = storageFactory.GetStorage();
+
+                using (var conn = storage.OpenConnection())
+                {
+                    var recipe = await storage.GetRecipe(conn, recipeID, full: true);
+                    if (recipe != null && recipe.ExtendedIngredients.Any())
+                        return new SingletonResponse<Recipe>()
+                        {
+                            Success = true,
+                            Object = recipe
+                        };
+                }
+
+                var client = spoonacularClientFactory.GetClient();
+                var response = await client.GetRecipesnformation(recipeID);
+
+                if (!response.Success)
+                    throw new Exception(response.Message);
+
+
+                using (var conn = storage.OpenConnection())
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        await storage.SaveRecipe(conn, response.Object);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Error during saving Recipe {recipeID}");
+                        transaction.Rollback();
+                    }
+
+                }
+
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error during GetRecipesnformation");
+                return new SingletonResponse<Recipe>()
                 {
                     Message = ex.Message,
                 };
