@@ -3,14 +3,8 @@ using CookMaster.Services.Clients;
 using CookMaster.Settings;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace CookMaster.Services.Factories
 {
@@ -39,9 +33,6 @@ namespace CookMaster.Services.Factories
 
             if (String.IsNullOrEmpty(config.Spoonacular.APIKey))
                 throw new ArgumentException("Spoonacular APIKey is required");
-
-   
-
 
             lock(sync)
             {

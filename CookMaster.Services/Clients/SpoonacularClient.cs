@@ -1,13 +1,11 @@
 ﻿using CookMaster.Interfaces;
 using CookMaster.Models;
 using CookMaster.Response;
-using CookMaster.Settings;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -205,12 +203,10 @@ namespace CookMaster.Services.Clients
                     };
                 }
 
-
                 throw await HandleError(response);
-
-
             }
         }
+
         public async Task<SingletonResponse<NutritionInfo>> GetRecipeNutritions(int recipeID)
         {
             var uri = BuildUri($"recipes/{recipeID}/nutritionWidget.json");
@@ -227,7 +223,6 @@ namespace CookMaster.Services.Clients
 #else
                     var result = await response.Content.ReadFromJsonAsync<NutritionInfo>(jsonSerializerOptions);
 #endif
-
                     result.RecipeID = recipeID;
 
                     return new SingletonResponse<NutritionInfo>()
@@ -237,10 +232,7 @@ namespace CookMaster.Services.Clients
                     };
                 }
 
-
                 throw await HandleError(response);
-
-
             }
         }
 
@@ -268,15 +260,12 @@ namespace CookMaster.Services.Clients
                     };
                 }
 
-
                 throw await HandleError(response);
-
-
             }
         }
 
 
-        #region Hepers
+        #region Helpers
         private  Uri BuildUri(string path, IDictionary<string, string> query = null)
         {
             var sb = new StringBuilder();
@@ -297,10 +286,9 @@ namespace CookMaster.Services.Clients
                 sb.Append("&number=2");
             }
 
-
-
             return new Uri(sb.ToString(), UriKind.Relative);
         }
+
         private async Task<Exception> HandleError(HttpResponseMessage response)
         {
             string errorMsg = null;
@@ -311,9 +299,6 @@ namespace CookMaster.Services.Clients
             }
             else
             {
-
-                
-
                 try
                 {
                     body = await response.Content.ReadAsStringAsync();

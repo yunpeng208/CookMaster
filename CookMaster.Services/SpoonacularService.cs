@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CookMaster.Services
@@ -31,7 +29,6 @@ namespace CookMaster.Services
                     throw new ArgumentNullException(nameof(queryPrams));
 
                 var ingredients = queryPrams.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).Select(kv => kv.Value.Split(",")).SelectMany(x => x).ToList();
-
                 var storage = storageFactory.GetStorage();
 
                 using(var conn = storage.OpenConnection())
@@ -47,7 +44,6 @@ namespace CookMaster.Services
                         };
                     }
                 }
-
 
                 var client = spoonacularClientFactory.GetClient();
                 var response = await client.SearchRecipesByIngredients(queryPrams);
@@ -71,9 +67,7 @@ namespace CookMaster.Services
 
                 }
 
-
                 return response;
-
             }
             catch (Exception ex)
             {
@@ -103,7 +97,6 @@ namespace CookMaster.Services
                 }
 
                 var client = spoonacularClientFactory.GetClient();
-
                 var response = await client.GetRecipeNutritions(recipeID);
 
                 if (!response.Success)
@@ -126,7 +119,6 @@ namespace CookMaster.Services
                 }
 
                 return response;
-
             }
             catch (Exception ex)
             {
@@ -179,7 +171,6 @@ namespace CookMaster.Services
                 }
 
                 return response;
-
             }
             catch (Exception ex)
             {
