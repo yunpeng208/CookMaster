@@ -47,7 +47,7 @@ namespace CookMaster.WebApp
         [HttpGet, Route("{RecipeID}/information")]
         public async Task<ActionResult<SingletonResponse<Recipe>>> GetRecipeInformation(int RecipeID)
         {
-            var response = await spoonacularService.GetRecipesnformation(RecipeID);
+            var response = await spoonacularService.GetRecipeInformation(RecipeID);
 
             return HandleResponse(response);
         }

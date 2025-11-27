@@ -12,6 +12,6 @@ namespace CookMaster.Interfaces
     {
         Task<ListResponse<RecipeSearchResult>> SearchRecipesByIngredients(Dictionary<string, string> queryPrams);
         Task<SingletonResponse<NutritionInfo>> GetRecipeNutritions(int recipeID);
-        Task<SingletonResponse<Recipe>> GetRecipesnformation(int recipeID);
+        Task<SingletonResponse<Recipe>> GetRecipeInformation(int recipeID);
     }
 }

@@ -138,7 +138,7 @@ namespace CookMaster.Services
             }
         }
 
-        public async Task<SingletonResponse<Recipe>> GetRecipesnformation(int recipeID)
+        public async Task<SingletonResponse<Recipe>> GetRecipeInformation(int recipeID)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace CookMaster.Services
                 }
 
                 var client = spoonacularClientFactory.GetClient();
-                var response = await client.GetRecipesnformation(recipeID);
+                var response = await client.GetRecipeInformation(recipeID);
 
                 if (!response.Success)
                     throw new Exception(response.Message);
@@ -183,7 +183,7 @@ namespace CookMaster.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error during GetRecipesnformation");
+                logger.LogError(ex, "Error during GetRecipeInformation");
                 return new SingletonResponse<Recipe>()
                 {
                     Message = ex.Message,

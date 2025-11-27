@@ -244,7 +244,7 @@ namespace CookMaster.Services.Clients
             }
         }
 
-        public async Task<SingletonResponse<Recipe>> GetRecipesnformation(int recipeID)
+        public async Task<SingletonResponse<Recipe>> GetRecipeInformation(int recipeID)
         {
             var uri = BuildUri($"recipes/{recipeID}/information");
 
