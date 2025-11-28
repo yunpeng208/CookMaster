@@ -35,16 +35,20 @@ namespace CookMaster.Services.Factories
                 throw new ArgumentException("Spoonacular APIKey is required");
 
             lock(sync)
-            {
-                var client = new HttpClient
+            {   
+                // Use double-check locking here to ensure SpoonacularClient is created only once while remaining thread-safe, by checking again inside the lock block.
+                if (spoonacularClient == null)
                 {
-                    BaseAddress = new Uri(config.Spoonacular.BaseURL, UriKind.Absolute)
-                };
+                    var client = new HttpClient
+                    {
+                        BaseAddress = new Uri(config.Spoonacular.BaseURL, UriKind.Absolute)
+                    };
 
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("x-api-key", config.Spoonacular.APIKey);
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("x-api-key", config.Spoonacular.APIKey);
 
-                spoonacularClient = new SpoonacularClient(client, loggerFactory);
+                    spoonacularClient = new SpoonacularClient(client, loggerFactory);
+                }
             }
 
             return spoonacularClient;
