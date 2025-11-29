@@ -23,11 +23,14 @@ export class RecipeDetails {
   constructor(private recipesService: RecipesService) {}
 
   loadNutrition(): void {
+    if (!this.recipe) {
+      return;
+    }
     this.nutrition = null;
     this.errorMessage = null;
     this.isLoadingNutrition = true;
 
-    this.recipesService.getRecipeNutritions(this.recipe!.ID).subscribe({
+    this.recipesService.getRecipeNutritions(this.recipe.ID).subscribe({
       next: res => {
         if (res.Success) {
           this.nutrition = res.Object;

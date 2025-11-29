@@ -27,6 +27,7 @@ export class RecipesSearch {
 
   onSearch(): void {
     this.errorMessage = null;
+    this.selectedRecipe = null; 
 
     const trimmed = this.ingredients.trim();
     if (!trimmed) {
@@ -82,5 +83,6 @@ export class RecipesSearch {
 
   backToSearch() {
     this.selectedRecipe = null;
+    this.errorMessage = null;
   }
 }

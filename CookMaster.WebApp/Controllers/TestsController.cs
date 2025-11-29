@@ -47,9 +47,9 @@ namespace CookMaster.WebApp
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error druing checking if Database exists or not");
+                logger.LogError(ex, "Error during checking if Database exists or not");
 
-                hasDB = $"Error druing checking if Database exists or not. Error: {ex.Message}";
+                hasDB = $"Error during checking if Database exists or not. Error: {ex.Message}";
             }
 
             return Ok(new
