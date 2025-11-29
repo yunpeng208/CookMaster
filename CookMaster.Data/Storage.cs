@@ -512,7 +512,7 @@ namespace CookMaster.Data
                 var affectedRows = await AddRecordAsync(conn, good);
 
                 if (affectedRows <= 0)
-                    throw new Exception("Failed to Add Good Item For Recipe {nutritionInfo.RecipeID} in database");
+                    throw new Exception($"Failed to Add Good Item For Recipe {nutritionInfo.RecipeID} in database");
             }
 
             foreach (var nutrient in nutritionInfo.Nutrients)
@@ -763,6 +763,10 @@ namespace CookMaster.Data
             var cols = GetDbPropertyNames<T>();
             var table = TableName<T>();
 
+            var pk = GetPK<T>();
+            if (conflictColumns == null || conflictColumns.Count == 0)
+                conflictColumns = new List<string> { pk.Name };
+            
             var colList = string.Join(", ", cols.Select(Q));
             var valList = string.Join(", ", cols.Select(c => "@" + c));
 
@@ -770,10 +774,6 @@ namespace CookMaster.Data
             var updateCols = cols
                             .Where(c => !conflictColumns.Contains(c))
                             .Select(c => $"{Q(c)} = EXCLUDED.{Q(c)}");
-
-            var pk = GetPK<T>();
-            if (conflictColumns == null)
-                conflictColumns = new List<string> { pk.Name };
 
             var sql = new StringBuilder();
             sql.AppendLine($@"INSERT INTO {table} ({colList}) VALUES ({valList})");
