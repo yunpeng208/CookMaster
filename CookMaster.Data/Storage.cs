@@ -75,44 +75,11 @@ namespace CookMaster.Data
                 try
                 {
                     var recipeID = await AddRecordOrSkipAsync(conn, new Recipe() { 
-                        
                         ID = result.ID,
                         Image = result.Image,
                         ImageType = result.ImageType,
                         Likes = result.Likes,
                         Title = result.Title,
-
-
-                        //Servings = 0,
-                        //ReadyInMinutes = 0,
-                        //License 
-                        //SourceName 
-                        //SourceUrl 
-                        //SpoonacularSourceUrl 
-                        //AggregateLikes 
-                        //HealthScore 
-                        //SpoonacularScore 
-                        //PricePerServing 
-
-                        //Cheap 
-                        //CreditsText 
-
-                        //DairyFree 
-                        //Gaps 
-                        //GlutenFree 
-                        //nstructions 
-                        //Ketogenic 
-                        //LowFodmap 
-                        //Sustainable 
-                        //Vegan 
-                        //Vegetarian 
-                        //VeryHealthy 
-                        //VeryPopular 
-                        //Whole30 
-                        //WeightWatcherSmartPoints 
-                        //Summary 
-
-                        
                     }, new List<string>() { "ID" });
 
                     // We already have this record in DB
@@ -129,6 +96,7 @@ namespace CookMaster.Data
             }
     
         }
+
         public async Task SaveRecipe(IDbConnection conn, Recipe recipe)
         {
             var recipeID = await AddOrUpdateRecordAsync(conn, recipe, new List<string>() { "ID" });
@@ -377,15 +345,13 @@ namespace CookMaster.Data
             var sql = new StringBuilder();
 
             sql.AppendLine($@"
-            SELECT {colList}
-            FROM {ingredientsTable} ing
-            JOIN {recipesIngredientsTable} rin ON rin.""IngredientID"" = ing.""ID""
-            WHERE rin.""RecipeID"" = @RecipeID
+                SELECT {colList}
+                FROM {ingredientsTable} ing
+                JOIN {recipesIngredientsTable} rin ON rin.""IngredientID"" = ing.""ID""
+                WHERE rin.""RecipeID"" = @RecipeID
             ");
             var ingredients = await conn.QueryAsync<Ingredient>(sql.ToString(), new { RecipeID = recipeID });
-
             var extendedIngredients = ingredients.ToList();
-
 
             foreach (var ing in extendedIngredients)
             {
@@ -405,7 +371,6 @@ namespace CookMaster.Data
                 };
                 #endregion
             }
-
 
             return extendedIngredients;
         }
@@ -584,7 +549,6 @@ namespace CookMaster.Data
                     if (affectedRows <= 0)
                         throw new Exception($"Failed to Add ingredient nutrient For Recipe {nutritionInfo.RecipeID} in database");
                 }
-             
             }
         }
 
@@ -662,7 +626,6 @@ namespace CookMaster.Data
             return $"{Q(schemaName)}.{Q(name)}";
         }
 
-
         #region  Reflection helpers
         private sealed class PropertyDetails
         {
@@ -716,7 +679,6 @@ namespace CookMaster.Data
         }
         #endregion
 
-
         private async Task<int> AddRecordAsync<T>(IDbConnection ctx, T record)
         {
             var cols = GetDbPropertyNames<T>();
@@ -743,9 +705,9 @@ namespace CookMaster.Data
             var parameter = new DynamicParameters();
 
             sql.AppendLine($@"
-SELECT {colList}
-FROM {table}
-");
+                SELECT {colList}
+                FROM {table}
+            ");
 
             if (filters != null && filters.Any())
             {
@@ -753,13 +715,9 @@ FROM {table}
                 foreach (var filter in filters)
                 {
                     sql.AppendLine(conition);
-
                     conition = "AND";
-
                     sql.AppendLine($"{Q(filter.PropertyName)}=@{filter.PropertyName}");
-
                     parameter.Add($"@{filter.PropertyName}", filter.PropertyValue);
-
                 }
             }
            
@@ -767,6 +725,7 @@ FROM {table}
 
             return rows.ToList();
         }
+
         private async Task<int?> AddRecordOrSkipAsync<T>(IDbConnection conn, T record, List<string> conflictColumns)
         {
             var cols = GetDbPropertyNames<T>();
@@ -782,13 +741,13 @@ FROM {table}
                 conflictColumns = new List<string>() { pk.Name };
             }
 
-
             sql.AppendLine($@" ON CONFLICT ({string.Join(", ", conflictColumns.Select(Q))}) DO NOTHING");
  
             sql.AppendLine("RETURNING 1");
 
             return await conn.ExecuteScalarAsync<int?>(sql.ToString(), record);
         }
+
         private async Task<int> UpdateRecordAsync<T>(IDbConnection ctx, T record)
         {
             var props = GetDbProperties<T>();
@@ -799,7 +758,7 @@ FROM {table}
             return await ctx.ExecuteAsync(sql, record);
         }
 
-        private async Task<int?> AddOrUpdateRecordAsync<T>(IDbConnection conn,T record, List<string> conflictColumns)
+        private async Task<int?> AddOrUpdateRecordAsync<T>(IDbConnection conn, T record, List<string> conflictColumns)
         {
             var cols = GetDbPropertyNames<T>();
             var table = TableName<T>();
@@ -809,8 +768,8 @@ FROM {table}
 
             // Columns to update (everything except conflict columns)
             var updateCols = cols
-                .Where(c => !conflictColumns.Contains(c))
-                .Select(c => $"{Q(c)} = EXCLUDED.{Q(c)}");
+                            .Where(c => !conflictColumns.Contains(c))
+                            .Select(c => $"{Q(c)} = EXCLUDED.{Q(c)}");
 
             var pk = GetPK<T>();
             if (conflictColumns == null)
@@ -818,10 +777,8 @@ FROM {table}
 
             var sql = new StringBuilder();
             sql.AppendLine($@"INSERT INTO {table} ({colList}) VALUES ({valList})");
-
             sql.AppendLine($@"ON CONFLICT ({string.Join(", ", conflictColumns.Select(Q))}) DO UPDATE");
             sql.AppendLine($@"SET {string.Join(", ", updateCols)}");
-
             sql.AppendLine("RETURNING 1");
 
             return await conn.ExecuteScalarAsync<int?>(sql.ToString(), record);
