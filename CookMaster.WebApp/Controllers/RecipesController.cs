@@ -10,6 +10,12 @@ using System.Threading.Tasks;
 
 namespace CookMaster.WebApp
 {
+    /// <summary>
+    /// MVC Controller (Controller layer):
+    /// - Receives HTTP requests from the client (View).
+    /// - Delegates work to the SpoonacularService (business logic).
+    /// - Returns DTO-style responses to the client.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class RecipesController : ControllerBase
@@ -51,7 +57,6 @@ namespace CookMaster.WebApp
 
             return HandleResponse(response);
         }
-
 
         #region helpers
         protected ActionResult<T> HandleResponse<T>(T response) where T : ApplicationResponse
