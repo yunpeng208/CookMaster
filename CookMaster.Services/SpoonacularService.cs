@@ -93,6 +93,10 @@ namespace CookMaster.Services
             }
         }
 
+        // Cache-Aside Pattern for nutrition:
+        // 1) Try to load NutritionInfo from DB.
+        // 2) If not found, call Spoonacular API.
+        // 3) Save NutritionInfo into DB, then return it.
         public async Task<SingletonResponse<NutritionInfo>> GetRecipeNutritions(int recipeID)
         {
             try
@@ -129,7 +133,6 @@ namespace CookMaster.Services
                         logger.LogError(ex, $"Error during saving Recipe {recipeID} NutritionInfo");
                         transaction.Rollback();
                     }
-
                 }
 
                 return response;
@@ -144,6 +147,10 @@ namespace CookMaster.Services
             }
         }
 
+        // Cache-Aside Pattern for full recipe information:
+        // 1) Try to load Recipe + ingredients from DB.
+        // 2) If missing or incomplete, fetch from Spoonacular API.
+        // 3) Save recipe data into DB, then return it.
         public async Task<SingletonResponse<Recipe>> GetRecipeInformation(int recipeID)
         {
             try
@@ -181,7 +188,6 @@ namespace CookMaster.Services
                         logger.LogError(ex, $"Error during saving Recipe {recipeID}");
                         transaction.Rollback();
                     }
-
                 }
 
                 return response;
