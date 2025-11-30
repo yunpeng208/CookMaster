@@ -123,7 +123,7 @@ namespace CookMaster.Services.Clients
                     sb.Append('?');
                     sb.Append(string.Join("&", q));
                 }
-                sb.Append("&number=2");
+                sb.Append("&number=5");
             }
 
             return new Uri(sb.ToString(), UriKind.Relative);

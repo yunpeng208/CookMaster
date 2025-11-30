@@ -49,7 +49,7 @@ namespace CookMaster.Services
                 {
                     var respies = await storage.GetRecipesByIngredients(conn, ingredients);
 
-                    if (respies.Count >= 2)
+                    if (respies.Count >= 5)
                     {
                         return new ListResponse<RecipeSearchResult>()
                         {
