@@ -13,6 +13,12 @@ using System.Threading.Tasks;
 
 namespace CookMaster.Data
 {
+    /// <summary>
+    /// DESIGN PATTERN: Repository Pattern
+    /// - Centralizes all data access logic for the domain (Recipes, Ingredients, NutritionInfo, etc.).
+    /// - Hides the details of SQL, Dapper and PostgreSQL from the rest of the application.
+    /// - Provides high-level methods like GetRecipe, SaveRecipe, GetRecipeNutritions, etc.
+    /// </summary>
     public class Storage : IStorage
     {
         private readonly string connectionString;
@@ -63,7 +69,6 @@ namespace CookMaster.Data
         {
             const string sql = "SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname = @name);";
             bool exists = await conn.QuerySingleAsync<bool>(sql, new { name = conn.Database });
-
             return exists;
         }
 
@@ -94,7 +99,6 @@ namespace CookMaster.Data
                     logger.LogError(ex, "Error during caching recipe {0}", result.ID);
                 }
             }
-    
         }
 
         public async Task SaveRecipe(IDbConnection conn, Recipe recipe)
@@ -181,15 +185,14 @@ namespace CookMaster.Data
                     if (affectedRows <= 0)
                         throw new Exception($"Failed to save Instruction Step {recipeInstructionStep.Step} in database for recipe {recipeID.Value}");
                 }
-   
             }
 
             foreach (var ingredient in recipe.ExtendedIngredients)
             {
                 await SaveRecipeIngredient(conn, ingredient, recipe.ID);
             }
-
         }
+
         public async Task<Recipe> GetRecipe(IDbConnection conn, int recipeID, bool full = false)
         {
             var record = await GetRecordsAsync<Recipe>(conn, new List<FilterBy>() { new FilterBy() { PropertyName = "ID", PropertyValue = recipeID } });
@@ -245,6 +248,7 @@ namespace CookMaster.Data
 
             return recipe;
         }
+
         public async Task UpdateRecipe(IDbConnection conn, Recipe recipe)
         {
            await UpdateRecordAsync(conn, recipe);
@@ -318,7 +322,6 @@ namespace CookMaster.Data
                 }
             }
 
-
             var recipesIngredient = new RecipesIngredient()
             {
                 IngredientID = ingredient.ID,
@@ -332,16 +335,14 @@ namespace CookMaster.Data
                 throw new Exception($"Failed to save Recipe {recipeID} Ingredient {ingredient.ID} Mapping in database");
 
             return true;
-    
         }
+
         private async Task<List<Ingredient>> GetRecipeIngredients(IDbConnection conn, int recipeID)
         {
             var cols = GetDbPropertyNames<Ingredient>();
             var ingredientsTable = TableName<Ingredient>();
             var colList = string.Join(", ", cols.Select(x => $"ing.{Q(x)}"));
-
             var recipesIngredientsTable = TableName<RecipesIngredient>();
-
             var sql = new StringBuilder();
 
             sql.AppendLine($@"
@@ -475,8 +476,6 @@ namespace CookMaster.Data
             if (nInfo.HasValue && nInfo.Value == 0)
                 throw new Exception("Failed to Add NutritionInfo");
 
-
-
             nutritionInfo.CaloricBreakdown.RecipeID = nutritionInfo.RecipeID;
 
             var nCaloricBreakdown = await AddRecordAsync(conn, nutritionInfo.CaloricBreakdown);
@@ -595,7 +594,6 @@ namespace CookMaster.Data
         }
         #endregion
 
-
         #region Helpers
         /// <summary>
         /// Fix Quoting so PostgreSQL follow Pascal casing
@@ -679,6 +677,10 @@ namespace CookMaster.Data
         }
         #endregion
 
+        /// <summary>
+        /// Repository helper:
+        /// Inserts a record of type T into its corresponding table. Uses reflection to map C# properties to DB columns.
+        /// </summary>
         private async Task<int> AddRecordAsync<T>(IDbConnection ctx, T record)
         {
             var cols = GetDbPropertyNames<T>();
@@ -695,6 +697,10 @@ namespace CookMaster.Data
             public object PropertyValue { get; set; }
         }
 
+        /// <summary>
+        /// Repository helper:
+        /// Generic query method that loads records of type T from the database based on optional filters. Hides SQL and Dapper usage from callers.
+        /// </summary>
         private async Task<List<T>> GetRecordsAsync<T>(IDbConnection conn, List<FilterBy> filters = null)
         {
             var cols = GetDbPropertyNames<T>();
@@ -758,6 +764,11 @@ namespace CookMaster.Data
             return await ctx.ExecuteAsync(sql, record);
         }
 
+        /// <summary>
+        /// Repository helper:
+        /// Insert or update a record using PostgreSQL ON CONFLICT.
+        /// This encapsulates the persistence logic for any entity type T.
+        /// </summary>
         private async Task<int?> AddOrUpdateRecordAsync<T>(IDbConnection conn, T record, List<string> conflictColumns)
         {
             var cols = GetDbPropertyNames<T>();
