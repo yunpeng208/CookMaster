@@ -4,6 +4,8 @@ import {NutritionInfo} from '../../shared/models/nutrition-info';
 import {Recipe} from '../../shared/models/recipe';
 import {DecimalPipe} from '@angular/common';
 
+// Angular "View" component for showing a single recipe.
+// Displays data provided by the RecipesService.
 @Component({
   selector: 'app-recipe-details',
   imports: [
@@ -48,5 +50,4 @@ export class RecipeDetails {
       }
     });
   }
-
 }

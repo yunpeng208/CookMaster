@@ -5,6 +5,9 @@ import {FormsModule} from '@angular/forms';
 import {Recipe} from '../../shared/models/recipe';
 import {RecipeDetails} from '../recipe-details/recipe-details';
 
+// Angular "View" + presentation logic in an MVC architecture.
+// - Binds to the template (recipes-search.html).
+// - Calls RecipesService to talk to the backend API.
 @Component({
   selector: 'app-recipes-search',
   imports: [
