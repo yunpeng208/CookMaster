@@ -8,6 +8,11 @@ using System.Net.Http.Headers;
 
 namespace CookMaster.Services.Factories
 {
+    /// <summary>
+    /// DESIGN PATTERN: Factory
+    /// - Responsible for creating and configuring a SpoonacularClient instance.
+    /// - It hides HttpClient and API configuration details from the rest of the application.
+    /// </summary>
     public class SpoonacularClientFactory: ISpoonacularClientFactory
     {
         private readonly ILoggerFactory loggerFactory;
