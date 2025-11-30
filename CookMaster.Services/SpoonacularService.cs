@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace CookMaster.Services
 {
+    /// <summary>
+    /// Facade Pattern:
+    /// - Provides a simple API (RecipesByIngredients, GetRecipeNutritions, GetRecipesInformation) to the rest of the application.
+    /// - Hides the complexity of:
+    ///   -- Calling the external Spoonacular API
+    ///   -- Talking to the PostgreSQL storage
+    ///   -- Caching logic
+    /// Controllers only talk to this service, not directly to API and DB.
+    /// </summary>
     public class SpoonacularService: ISpoonacularService
     {
         private readonly ILogger logger;
@@ -21,6 +30,11 @@ namespace CookMaster.Services
             this.storageFactory = storageFactory;
         }
 
+        // Facade + Cache-Aside:
+        // 1. Try to get recipes from local storage (cache).
+        // 2. If not enough results, call external Spoonacular API.
+        // 3. Cache the API results in the database.
+        // 4. Return a unified response to the caller.
         public async Task<ListResponse<RecipeSearchResult>> RecipesByIngredients(Dictionary<string, string> queryPrams)
         {
             try
