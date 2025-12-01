@@ -42,7 +42,7 @@ namespace CookMaster.Services
                 if (queryPrams == null || !queryPrams.Any())
                     throw new ArgumentNullException(nameof(queryPrams));
 
-                var ingredients = queryPrams.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).Select(kv => kv.Value.Split(",")).SelectMany(x => x).ToList();
+                var ingredients = queryPrams.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).Select(kv => kv.Value.Split(",")).SelectMany(x => x).Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToList();
                 var storage = storageFactory.GetStorage();
 
                 using(var conn = storage.OpenConnection())
